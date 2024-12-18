@@ -3,16 +3,16 @@ import os
 
 import dotenv
 
-import extract
+import build_cdr
 
 dotenv.load_dotenv()
 
 
 def test_remove_date_from_filename():
     """Test the remove_date_from_filename function."""
-    assert extract.remove_date_from_filename('sct2_Relationship_UKEDSnapshot_GB_20241120.txt') == \
+    assert build_cdr.remove_date_from_filename('sct2_Relationship_UKEDSnapshot_GB_20241120.txt') == \
         'sct2_Relationship_UKEDSnapshot_GB_.txt'
-    assert extract.remove_date_from_filename('sct2_Relationship_UKEDSnapshot_GB_202410.txt') == \
+    assert build_cdr.remove_date_from_filename('sct2_Relationship_UKEDSnapshot_GB_202410.txt') == \
         'sct2_Relationship_UKEDSnapshot_GB_.txt'
 
 def test_extraction_matches():
@@ -36,14 +36,14 @@ def test_extraction_matches():
             existing_files.append(os.path.join(file))
     assert len(existing_files) == 12, 'Should have 12 files in the existing SNOMED CDR'
 
-    existing_files_no_date = {extract.remove_date_from_filename(f)  for f in existing_files}
+    existing_files_no_date = {build_cdr.remove_date_from_filename(f)  for f in existing_files}
     assert len(existing_files_no_date) == 12, 'Should have 12 files in the existing SNOMED CDR'
 
     # Extract and compare
-    files_to_copy = extract.extract_and_copy_relevant_files(new_zip_file)    
+    files_to_copy = build_cdr.extract_and_copy_relevant_files(new_zip_file)    
     assert len(files_to_copy) == 12, 'Should have 12 files in the new SNOMED CDR'
 
-    files_to_copy_no_date = {extract.remove_date_from_filename(f) for f in files_to_copy}
+    files_to_copy_no_date = {build_cdr.remove_date_from_filename(f) for f in files_to_copy}
     assert len(files_to_copy_no_date) == 12, 'Should have 12 files in the new SNOMED CDR'
 
     different_files = existing_files_no_date.symmetric_difference(files_to_copy_no_date)

@@ -10,13 +10,13 @@ If you already have a SNOMED CDR directory, you can simply set the
 import dotenv
 
 
-from extract import main as extract_main
+from build_cdr import main as build_cdr_main
 
 def main():
     """Main setup script"""
     dotenv.load_dotenv()
 
-    destination = extract_main()
+    destination = build_cdr_main()
     if destination:
         dotenv.set_key('.env', 'EXISTING_SNOMED_CDR', destination)
     else:
