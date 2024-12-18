@@ -12,6 +12,9 @@ A `CDR` is a directory containing a subset of SNOMED CT files. These are only th
 `snomed-squasher` uses only the `Snapshot` data from SNOMED, as the full history of SNOMED definitions is unnecessary. 
 
 ## Installation
+1. Clone this repo
+1. Setup a `venv`, `conda` instance, or similar.
+1. `pip install -r requirements.txt`
 1. Obtain a zipfile of the relevant SNOMED CT Ontology: `SNOMED CT UK Clinical Edition, RF2: Full, Snapshot & Delta`, available from [NHS TRUD](https://isd.digital.nhs.uk/trud/)
 1. Run `setup.py`, specifying the location of the zipfile, and the destination directory to copy the CDR files to. 
     - If you already have a CDR built, you can skip the setup script. Instead, just set the `EXISTING_SNOMED_CDR` variable in a `.env` file to your existing CDR directory. 
