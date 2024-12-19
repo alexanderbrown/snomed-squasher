@@ -35,10 +35,26 @@ class Snomed():
         relationships (DataFrame): DataFrame of all relationships in the CDR.
 
     Methods:
-        find_concept(name: str) -> int | None: Finds a concept by name, returning the CUI if found, otherwise None.
-        find_concepts(name: str) -> pd.DataFrame: Finds a concept by name, returning all matching concepts.
-        get_concepts(cui: int) -> pd.DataFrame: Returns all concepts with the specified CUI.
-        get_primary_concept(cui: int) -> pd.DataFrame: Returns the primary concept with the specified CUI.
+        find_concept(name: str) -> int | None: 
+            Finds a concept by name, returning the CUI if found, otherwise None.
+        find_concepts(name: str) -> pd.DataFrame: 
+            Finds a concept by name. Returns ideally one perfect match, 
+                otherwise multiple partial matches, or an empty DataFrame.
+        get_concepts(cui: int) -> pd.DataFrame: 
+            Returns all concepts with the specified CUI.
+        get_primary_concept(cui: int) -> pd.DataFrame: 
+            Returns the primary concept with the specified CUI.
+        get_parents(cui: int, primary_only: bool = True) -> pd.DataFrame: 
+            Returns the parent concept(s) of the specified CUI.
+        get_parents_by_name(name: str, primary_only: bool = True) -> pd.DataFrame: 
+            Returns the parent concept(s) of the specified name.
+        get_children(cui: int, primary_only: bool = True) -> pd.DataFrame:
+            Returns the child concept(s) of the specified CUI.
+        get_children_by_name(name: str, primary_only: bool = True) -> pd.DataFrame:
+            Returns the child concept(s) of the specified name.
+        get_ancestors(cui: int) -> pd.DataFrame:
+            Returns all ancestor concepts of the specified CUI.
+        
     
     """
     def __init__(self, cdr_path: str | None = None):
@@ -137,6 +153,20 @@ class Snomed():
             parents = parents[parents.name_status == 'P']
         return parents
     
+    def get_parents_by_name(self, name: str, primary_only: bool = True) -> pd.DataFrame:
+        """Returns the parent concept(s) [first-order ancestors] of the specified name.
+        
+        Parameters:
+            name (str): The name to search for
+            primary_only (bool): If True, will only return primary concepts
+
+        Returns a DataFrame containing the parent concepts.
+        """
+        cui = self.find_concept(name)
+        if cui is None:
+            raise ValueError(f"No concept found with name {name}")
+        return self.get_parents(cui, primary_only)
+    
     def get_children(self, cui: int, primary_only: bool = True) -> pd.DataFrame:
         """Returns the child concept(s) [first-order descendants] of the specified CUI.
         
@@ -152,13 +182,28 @@ class Snomed():
             children = children[children.name_status == 'P']
         return children
 
+    def get_children_by_name(self, name: str, primary_only: bool = True) -> pd.DataFrame:
+        """Returns the child concept(s) [first-order descendants] of the specified name.
+        
+        Parameters:
+            name (str): The name to search for
+            primary_only (bool): If True, will only return primary concepts
+
+        Returns a DataFrame containing the child concepts.
+        """
+        cui = self.find_concept(name)
+        if cui is None:
+            raise ValueError(f"No concept found with name {name}")
+        return self.get_children(cui, primary_only)
+
     def get_ancestors(self, cui: int) -> pd.DataFrame:
         """Returns all ancestor concepts of the specified CUI (primary only).
 
         Parameters:
             cui (int): The CUI to search for
 
-        Returns a DataFrame containing the ancestor concepts.  
+        Returns a DataFrame containing the ancestor concepts, along with the level, 
+         the minimum number of steps required to reach the concept from the specified CUI.
         """
         ancestor_cuis, ancestor_levels = self._get_ancestors(cui)
         
@@ -168,6 +213,20 @@ class Snomed():
         df = df.merge(min_level, on='cui', how='left')
         return df.sort_values('level').reset_index(drop=True)
     
+    def get_ancestors_by_name(self, name: str) -> pd.DataFrame:
+        """Returns all ancestor concepts of the specified name (primary only).
+
+        Parameters:
+            name (str): The name to search for
+
+        Returns a DataFrame containing the ancestor concepts, along with the level, 
+         the minimum number of steps required to reach the concept from the specified CUI.  
+        """
+        cui = self.find_concept(name)
+        if cui is None:
+            raise ValueError(f"No concept found with name {name}")
+        return self.get_ancestors(cui)
+
     def _list_available_releases(self) -> list[str]:
         """Lists the available releases in the CDR."""
         return [f for f in os.listdir(self.cdr_path) if os.path.isdir(os.path.join(self.cdr_path, f))]
