@@ -18,3 +18,6 @@ A `CDR` is a directory containing a subset of SNOMED CT files. These are only th
 1. Obtain a zipfile of the relevant SNOMED CT Ontology: `SNOMED CT UK Clinical Edition, RF2: Full, Snapshot & Delta`, available from [NHS TRUD](https://isd.digital.nhs.uk/trud/)
 1. Run `setup.py`, specifying the location of the zipfile, and the destination directory to copy the CDR files to. 
     - If you already have a CDR built, you can skip the setup script. Instead, just set the `EXISTING_SNOMED_CDR` variable in a `.env` file to your existing CDR directory. 
+
+## Usage Notes
+* Concept name resolution is currently implemented as being case insensitive. This may cause issues in certain cases, e.g. blood group haplotypes. (see [Snomed Guidance on Case Significance](https://confluence.ihtsdotools.org/display/DOCEG/Case+Significance)). It is not a problem for my use case, so I haven't fixed it. 
