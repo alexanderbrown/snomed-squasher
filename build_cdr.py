@@ -32,6 +32,14 @@ def get_relevant_files(directory: str) -> list[str]:
                     relevant_files.append(os.path.join(root, file))
     return relevant_files
 
+def get_destination_subfolder(full_filename: str) -> str | None:
+    """Determines the subfolder to copy the file to based on the release type."""
+    known_release_types =['InternationalRF2', 'UKClinicalRefsetsRF2', 'UKClinicalRF2', 'UKEditionRF2']
+    for release in known_release_types:
+        if release in full_filename:
+            return release
+    return None
+
 def extract_and_copy_relevant_files(source: str, destination: str | None = None) -> list[str]:
     """Extracts the zip file, and copies relevant files to a specified directory.
 
@@ -58,7 +66,20 @@ def extract_and_copy_relevant_files(source: str, destination: str | None = None)
                             f"""Destination directory {destination} is not empty.
                             Please specify an empty or non-existent directory.""")
                 for file in files_to_copy:
-                    shutil.copy(file, destination)
+                    subfolder = get_destination_subfolder(file)
+                    if subfolder:
+                        this_file_destination = os.path.join(destination, subfolder)
+                        if not os.path.exists(this_file_destination):
+                            os.makedirs(this_file_destination)
+                        shutil.copy(file, this_file_destination)
+                    else:
+                        raise ValueError(f"Unknown release type for {file}")
+                with open(os.path.join(destination, 'cdr_notes.txt'), 'w', encoding='utf-8') as notes:
+                    notes.write(f"Source file: {os.path.split(source)[1]}:\n")
+                    for f in files_to_copy:
+                        src = f.replace(temp_dir, '').lstrip('\\')
+                        dest = os.path.join(get_destination_subfolder(f), os.path.split(f)[1])
+                        notes.write(f"{src} -> {dest}\n")
 
             return [os.path.split(f)[1] for f in files_to_copy]
 
