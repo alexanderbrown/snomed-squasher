@@ -42,7 +42,7 @@ class Snomed():
                 otherwise multiple partial matches, or an empty DataFrame.
         get_concepts(cui: int) -> pd.DataFrame: 
             Returns all concepts with the specified CUI.
-        get_primary_concept(cui: int) -> pd.DataFrame: 
+        get_primary_concept(cui: int) -> pd.Series: 
             Returns the primary concept with the specified CUI.
         get_parents(cui: int, primary_only: bool = True) -> pd.DataFrame: 
             Returns the parent concept(s) of the specified CUI.
@@ -122,7 +122,7 @@ class Snomed():
         """
         return self.concepts[self.concepts.cui == cui]
     
-    def get_primary_concept(self, cui: int) -> pd.DataFrame:
+    def get_primary_concept(self, cui: int) -> pd.Series:
         """Returns the primary concept with the specified CUI.
         
         Parameters:
@@ -136,7 +136,7 @@ class Snomed():
             raise ValueError(f"No primary concept found for CUI {cui}")
         if len(primary_concept) > 1:
             raise ValueError(f"Multiple primary concepts found for CUI {cui}")
-        return primary_concept
+        return primary_concept.iloc[0]
 
     def get_parents(self, cui: int, primary_only: bool = True) -> pd.DataFrame:
         """Returns the parent concept(s) [first-order ancestors] of the specified CUI.
