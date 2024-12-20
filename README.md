@@ -30,16 +30,16 @@ from snomed import Snomed
 snomed = Snomed()
 ```
 
-### Find a concept, by name
+### Find a cui, by name
 Find the `cui` for a concept, from its name
 ```python
-snomed.find_concept('Asthma')
+snomed.find_cui('Asthma')
 ```
 > 195967001
 
-`find_concept` will try to find a single exact match. If it cannot, it will return `None`:
+`find_cui` will try to find a single exact match. If it cannot, it will return `None`:
 ```python
-snomed.find_concept('Asth')
+snomed.find_cui('Asth')
 ```
 > \<None\>
 

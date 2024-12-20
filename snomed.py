@@ -35,7 +35,7 @@ class Snomed():
         relationships (DataFrame): DataFrame of all relationships in the CDR.
 
     Methods:
-        find_concept(name: str) -> int | None: 
+        find_cui(name: str) -> int | None: 
             Finds a concept by name, returning the CUI if found, otherwise None.
         find_concepts(name: str) -> pd.DataFrame: 
             Finds a concept by name. Returns ideally one perfect match, 
@@ -65,8 +65,8 @@ class Snomed():
         self.concepts = self._load_all_concept_definitions()
         self.relationships = self._load_all_hierarchy_definitions()
 
-    def find_concept(self, name: str) -> int | None:
-        """Wrapper for find_concepts, but returns a single concept, or None if not found / multiple found.
+    def find_cui(self, name: str) -> int | None:
+        """Wrapper for find_cui, but returns a single concept, or None if not found / multiple found.
         
         Parameters:
             name (str): The name to search for
@@ -162,7 +162,7 @@ class Snomed():
 
         Returns a DataFrame containing the parent concepts.
         """
-        cui = self.find_concept(name)
+        cui = self.find_cui(name)
         if cui is None:
             raise ValueError(f"No concept found with name {name}")
         return self.get_parents(cui, primary_only)
@@ -191,7 +191,7 @@ class Snomed():
 
         Returns a DataFrame containing the child concepts.
         """
-        cui = self.find_concept(name)
+        cui = self.find_cui(name)
         if cui is None:
             raise ValueError(f"No concept found with name {name}")
         return self.get_children(cui, primary_only)
@@ -222,7 +222,7 @@ class Snomed():
         Returns a DataFrame containing the ancestor concepts, along with the level, 
          the minimum number of steps required to reach the concept from the specified CUI.  
         """
-        cui = self.find_concept(name)
+        cui = self.find_cui(name)
         if cui is None:
             raise ValueError(f"No concept found with name {name}")
         return self.get_ancestors(cui)
