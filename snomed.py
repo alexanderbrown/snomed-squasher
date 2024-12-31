@@ -1,4 +1,5 @@
 """Module to parse SNOMED definitions."""
+from collections import deque
 import glob
 import os
 
@@ -78,7 +79,7 @@ class Snomed():
         matches = self.find_concepts(name)
 
         if len(matches) == 1:
-            return matches.cui.values[0]
+            return matches.cui.values[0].item()
 
         return None
         
@@ -197,21 +198,29 @@ class Snomed():
         return self.get_children(cui, primary_only)
 
     def get_ancestors(self, cui: int) -> pd.DataFrame:
-        """Returns all ancestor concepts of the specified CUI (primary only).
+        """Returns all ancestor concepts of the specified CUI (primary only) [using breadth-first search].
 
         Parameters:
             cui (int): The CUI to search for
 
-        Returns a DataFrame containing the ancestor concepts, along with the level, 
+        Returns a DataFrame containing the ancestor concepts, along with the level -  
          the minimum number of steps required to reach the concept from the specified CUI.
         """
-        ancestor_cuis, ancestor_levels = self._get_ancestors(cui)
+        q = deque()
+        ancestors = []
+        levels = []
+        q.append([cui, 0])
+        while q:
+            c, level = q.popleft()
+            if c in ancestors:
+                continue
+            ancestors.append(c)
+            levels.append(level)
+            q.extend([[a, level+1] for a in self.get_parents(c)['cui']])
         
-        df = self.concepts[(self.concepts.cui.isin(ancestor_cuis)) & (self.concepts.name_status == 'P')]
-        df_levels = pd.DataFrame({'cui': ancestor_cuis, 'level': ancestor_levels})
-        min_level = df_levels.groupby('cui')['level'].min()
-        df = df.merge(min_level, on='cui', how='left')
-        return df.sort_values('level').reset_index(drop=True)
+        df = self.concepts[(self.concepts.cui.isin(ancestors)) & (self.concepts.name_status == 'P')]
+        df_levels = pd.DataFrame({'cui': ancestors, 'level': levels})
+        return df.merge(df_levels, on='cui', how='left').sort_values('level').reset_index(drop=True)
     
     def get_ancestors_by_name(self, name: str) -> pd.DataFrame:
         """Returns all ancestor concepts of the specified name (primary only).
@@ -288,21 +297,6 @@ class Snomed():
         df = df[['id', 'sourceId', 'destinationId']]
         df['release'] = release
         return df.reset_index(drop=True)
-
-    def _get_ancestors(self, cui: int, level: int = 0) -> pd.DataFrame | tuple[list[int], list[int]]:
-        """Internal recursive function to get all ancestors of a concept."""
-        parents = self.get_parents(cui)
-        ancestor_cuis = []
-        ancestor_levels = []
-        for parent in parents.cui.unique():
-            ancestor_cuis.append(parent)
-            ancestor_levels.append(level+1)
-
-            a,l = self._get_ancestors(parent, level=level+1)
-            ancestor_cuis += a
-            ancestor_levels += l
-
-        return ancestor_cuis, ancestor_levels
 # ------------------------------ Utils ---------------------------------------
 
 def _get_cdr_path(cdr_path: str | None) -> str:
