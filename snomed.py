@@ -251,8 +251,10 @@ class Snomed():
             raise ValueError(f"Release {release} not found in {self.definitions_path}")
         
         # Find the concept and description files
-        concept_file = glob.glob(os.path.join(self.definitions_path, release, 'Snapshot', 'Terminology', '*_Concept_*.txt'))[0]
-        description_file = glob.glob(os.path.join(self.definitions_path, release, 'Snapshot', 'Terminology', '*_Description_*.txt'))[0]
+        concept_file = glob.glob(os.path.join(self.definitions_path, release, 
+                                              'Snapshot', 'Terminology', '*_Concept_*.txt'))[0]
+        description_file = glob.glob(os.path.join(self.definitions_path, release, 'Snapshot', 
+                                                  'Terminology', '*_Description_*.txt'))[0]
 
         # Read in DataFrames, drop unnecessary columns, and merge
         concepts = parse_file(concept_file)
@@ -287,7 +289,8 @@ class Snomed():
             raise ValueError(f"Release {release} not found in {self.definitions_path}")
         
         # Find the relationship file
-        relationship_file = glob.glob(os.path.join(self.definitions_path, release, 'Snapshot', 'Terminology', '*_Relationship_*.txt'))[0]
+        relationship_file = glob.glob(os.path.join(self.definitions_path, release, 
+                                                   'Snapshot', 'Terminology', '*_Relationship_*.txt'))[0]
         # Read in DataFrame and drop unnecessary columns
         df = parse_file(relationship_file)
         df = df[df.typeId == isa_id]
