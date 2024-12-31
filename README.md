@@ -6,10 +6,16 @@ This can be used for:
 * Analysis / Machine learning - reducing the number of classes
 * Annonymising data - removing rare / idiosyncratic diagnoses
 
+Definitions are obtained from a SNOMED directory. This needs to be downloaded separately from [NHS TRUD](https://isd.digital.nhs.uk/trud/)
+
+Optionally, a `CDR Directory`, a subset of the full SNOMED data, can be used for definitions. This contains only the files needed for this package.
+
 ## CDR directory
 A `CDR` is a directory containing a subset of SNOMED CT files. These are only the *Concept*, *Definition*, and *Relationship* files. These files are the minimal set needed to define the ontology tree containing Findings/Diagnoses. 
 
 `snomed-squasher` uses only the `Snapshot` data from SNOMED, as the full history of SNOMED definitions is unnecessary. 
+
+A `CDR Directory` is created by default in the setup script. However, you can extract the whole zip file, or just use an existing definitions directory. 
 
 ## Installation
 1. Clone this repo
@@ -17,8 +23,8 @@ A `CDR` is a directory containing a subset of SNOMED CT files. These are only th
 1. `pip install -r requirements.txt`
 1. Obtain a zipfile of the relevant SNOMED CT Ontology: `SNOMED CT UK Clinical Edition, RF2: Full, Snapshot & Delta`, available from [NHS TRUD](https://isd.digital.nhs.uk/trud/)
 1. Run `setup.py`, specifying the location of the zipfile, and the destination directory to copy the CDR files to. 
-    - If you already have a CDR built, you can skip the setup script. Instead, just set the `EXISTING_SNOMED_CDR` variable in a `.env` file to your existing CDR directory. 
-1. You can then delete the original SNOMED files - only the CDR copy is needed
+    - If you already have a CDR built, or a SNOMED CT directory, you can skip the setup script. Instead, just set the `SNOMED_DEFINITIONS` variable in a `.env` file to your existing CDR directory.
+    - You also don't need to run setup; instead the path to the Definitions can be manually specified when creating a `Snomed` object.  
 
 ## Usage Notes
 * Concept name resolution is currently implemented as being case insensitive. This may cause issues in certain cases, e.g. blood group haplotypes. (see [Snomed Guidance on Case Significance](https://confluence.ihtsdotools.org/display/DOCEG/Case+Significance)). It is not a problem for my use case, so I haven't fixed it. 

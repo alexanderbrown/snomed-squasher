@@ -25,15 +25,14 @@ class Snomed():
     """Class to parse SNOMED definitions.
     
     Parameters:
-        cdr_path (str, optional): Path to the SNOMED CDR. 
-                                  If not provided, will check for an environment variable called EXISTING_SNOMED_CDR.
+        path (str, optional): Path to the SNOMED definitions. 
+                                If not provided, will check for an environment variable called SNOMED_DEFINITIONS.
     
     Attributes:
-        cdr_path (str): Path to the SNOMED CDR.
-        source_file (str): The source file for the SNOMED CDR.
-        releases (list): List of available releases in the CDR.
-        concepts (DataFrame): DataFrame of all concepts in the CDR.
-        relationships (DataFrame): DataFrame of all relationships in the CDR.
+        definitions_path (str): Path to the SNOMED Definitions (full extracted version, or CDR only).
+        releases (list): List of available releases in the Definitions.
+        concepts (DataFrame): DataFrame of all concepts in the Definitions.
+        relationships (DataFrame): DataFrame of all relationships in the Definitions.
 
     Methods:
         find_cui(name: str) -> int | None: 
@@ -58,9 +57,8 @@ class Snomed():
         
     
     """
-    def __init__(self, cdr_path: str | None = None):
-        self.cdr_path = _get_cdr_path(cdr_path)
-        self.source_file = _get_source_file(self.cdr_path)
+    def __init__(self, definitions_path: str | None = None):
+        self.definitions_path = _get_snomed_definitions_path(definitions_path)
 
         self.releases = self._list_available_releases()
         self.concepts = self._load_all_concept_definitions()
@@ -237,8 +235,8 @@ class Snomed():
         return self.get_ancestors(cui)
 
     def _list_available_releases(self) -> list[str]:
-        """Lists the available releases in the CDR."""
-        return [f for f in os.listdir(self.cdr_path) if os.path.isdir(os.path.join(self.cdr_path, f))]
+        """Lists the available releases in the Definitions."""
+        return [f for f in os.listdir(self.definitions_path) if os.path.isdir(os.path.join(self.definitions_path, f))]
     
     def _load_all_concept_definitions(self):
         """Loads all releases and concatenates in to a single DataFrame of concepts."""
@@ -250,11 +248,11 @@ class Snomed():
     def _load_concept_definition(self, release: str):
         """Converts a release to a DataFrame of concepts."""
         if release not in self.releases:
-            raise ValueError(f"Release {release} not found in {self.cdr_path}")
+            raise ValueError(f"Release {release} not found in {self.definitions_path}")
         
         # Find the concept and description files
-        concept_file = glob.glob(os.path.join(self.cdr_path, release, '*Concept*.txt'))[0]
-        description_file = glob.glob(os.path.join(self.cdr_path, release, '*Description*.txt'))[0]
+        concept_file = glob.glob(os.path.join(self.definitions_path, release, 'Snapshot', 'Terminology', '*_Concept_*.txt'))[0]
+        description_file = glob.glob(os.path.join(self.definitions_path, release, 'Snapshot', 'Terminology', '*_Description_*.txt'))[0]
 
         # Read in DataFrames, drop unnecessary columns, and merge
         concepts = parse_file(concept_file)
@@ -286,11 +284,10 @@ class Snomed():
         isa_id = 116680003 # 116680003 is the 'is a' relationship (child -> parent)
 
         if release not in self.releases:
-            raise ValueError(f"Release {release} not found in {self.cdr_path}")
+            raise ValueError(f"Release {release} not found in {self.definitions_path}")
         
         # Find the relationship file
-        relationship_file = glob.glob(os.path.join(self.cdr_path, release, '*Relationship*.txt'))[0]
-
+        relationship_file = glob.glob(os.path.join(self.definitions_path, release, 'Snapshot', 'Terminology', '*_Relationship_*.txt'))[0]
         # Read in DataFrame and drop unnecessary columns
         df = parse_file(relationship_file)
         df = df[df.typeId == isa_id]
@@ -299,20 +296,14 @@ class Snomed():
         return df.reset_index(drop=True)
 # ------------------------------ Utils ---------------------------------------
 
-def _get_cdr_path(cdr_path: str | None) -> str:
-    """Returns the path to the SNOMED CDR."""
-    if cdr_path:
-        return cdr_path
-    if 'EXISTING_SNOMED_CDR' in os.environ:
-        return os.environ.get('EXISTING_SNOMED_CDR')
+def _get_snomed_definitions_path(definitions_path: str | None) -> str:
+    """Returns the path to the SNOMED definitions."""
+    if definitions_path:
+        return definitions_path
+    if 'SNOMED_DEFINITIONS' in os.environ:
+        return os.environ.get('SNOMED_DEFINITIONS')
     
     raise ValueError('No SNOMED definitions path specified')
-    
-def _get_source_file(cdr_path: str) -> str:
-    """Returns the source file for the SNOMED CDR."""
-    with open(os.path.join(cdr_path, 'cdr_notes.txt'), 'r', encoding='utf-8') as file:
-        first_line = file.readline()
-        return first_line.replace('Source file: ', '').replace('.zip:\n', '')
 
 # ----------------------- Concept Definition Processing -----------------------
 
