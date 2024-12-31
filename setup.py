@@ -4,7 +4,7 @@ This scipt sets up the snomed-squasher by:
  1. Extracting the SNOMED definitions and copying relevant files to the specified directory.
  2. Setting the SNOMED_DEFINITIONS environment variable to the destination directory.
 
-If you already have a SNOMED CDR directory, you can simply set the 
+If you already have a SNOMED Definitions directory, you can simply set the 
  SNOMED_DEFINITIONS environment variable to the path of the directory.
 """
 import argparse
