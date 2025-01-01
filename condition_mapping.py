@@ -21,6 +21,8 @@ class ConditionMapper():
                             Otherwise, the mapping file with the specified number is loaded
         '''
         self.input_file = input_file
+        if not os.path.exists(self.input_file):
+            raise FileNotFoundError(f'File not found: {self.input_file}')
         self.output_location = os.path.splitext(self.input_file)[0]
 
         if file_number == 0:
@@ -61,7 +63,7 @@ class ConditionMapper():
             json.dump({'known': self.known_conditions, 'unknown': self.unknown_conditions}, file, indent=4)
         print('Done')
 
-    def load_from_mapping_file(self, n: int):
+    def load_from_mapping_file(self, n: int) -> tuple[dict[str, int], list[str]]:
         '''Load a mapping from a specified saved file'''
         mapping_file = self.mapping_file_path(n)
         print(f'Loading mapping file {mapping_file}... ', end='')
@@ -75,7 +77,7 @@ class ConditionMapper():
         last_mapping_file_number = self.most_recent_mapping_file
         if last_mapping_file_number:
             return self.load_from_mapping_file(last_mapping_file_number)
-        return None, None
+        raise FileNotFoundError('No mapping files found')
         
     def clear_mapping_files(self):
         '''Clear all saved mapping files'''
