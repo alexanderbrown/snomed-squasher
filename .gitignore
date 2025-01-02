@@ -3,7 +3,5 @@ __pycache__
 .venv
 
 data/*
-!data/inputs_example.txt
-!data/inputs_example_partial.txt
-!data/inputs_example_unmatchable.txt
+!data/example.txt
 .env
