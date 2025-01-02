@@ -29,7 +29,7 @@ A `CDR Directory` is created by default in the setup script. However, you can ex
 ## Usage Notes
 * Concept name resolution is currently implemented as being case insensitive. This may cause issues in certain cases, e.g. blood group haplotypes. (see [Snomed Guidance on Case Significance](https://confluence.ihtsdotools.org/display/DOCEG/Case+Significance)). It is not a problem for my use case, so I haven't fixed it. 
 
-## Example Usage
+## Example Usage - `Snomed` Class
 
 ### Import code and create `snomed` object
 ```python
@@ -122,3 +122,9 @@ snomed.get_ancestors_by_name('asthma') # alternative, using name rather than CUI
 Note that an additional column, `level` is added. This is the *minimum* number of steps required to reach a given ancestor from the input concept (`cui` or name). There may be more than one path up through the ontology, only the smallest path is returned. 
 
 Note also that ancestors with level 1 are equivalent to the output of `get_parents`
+
+## Example Usage - `ConditionMapper` Class
+
+The `ConditionMapper` uses a `Snomed` object to map freetext strings to SNOMED codes, +/- mapping these codes in to groups (also SNOMED codes). The is the 'squashing' part of this project!
+
+Please see notebook for an example workflow
