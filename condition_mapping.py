@@ -154,7 +154,7 @@ class ConditionMapper():
             if cui:
                 self.string_to_condition_cui[condition_name] = int(cui)
                 concept = self.snomed.get_primary_concept(cui)
-                print(f'\t{condition_name} mapped to {concept['name']}')
+                print(f'\t{condition_name} mapped to {concept["name"]}')
 
         self.unknown_strings = [condition for condition in self.unknown_strings 
                                    if condition not in self.string_to_condition_cui]
@@ -208,7 +208,7 @@ class ConditionMapper():
                     continue
 
                 concept = self.snomed.get_primary_concept(cui)
-                print(f'\t{raw_name} mapped to {concept['name']} ({cui})')
+                print(f'\t{raw_name} mapped to {concept["name"]} ({cui})')
                 self.unknown_strings.remove(raw_name)
                 self.string_to_condition_cui[raw_name] = int(cui)
 
