@@ -2,9 +2,9 @@
 for deployment in to a Trusted Research Environment (TRE) or similar, 
 where git / external package installation is not readily available.
 '''
+import zipfile
 
 import git
-import zipfile
 
 repo = git.Repo('.')
 all_files = repo.git.execute(['git', 'ls-files'])
@@ -19,4 +19,3 @@ output_filename = f'snomed_squasher_{tag.name.replace('.', '_')}.zip'
 with zipfile.ZipFile(output_filename, 'w') as z:
     for f in files_to_package:
         z.write(f)
-
